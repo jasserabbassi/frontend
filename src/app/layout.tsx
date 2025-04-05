@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './styles/globals.css'
+import { NotificationProvider } from '@/context/NotificationContext'
+import Notification from '@/components/ui/Notification' // Missing import
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,7 +18,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      {/* NotificationProvider must wrap the entire body */}
+      <body className={inter.className}>
+        <NotificationProvider>
+          <Notification />  {/* Notification component */}
+          {children}
+        </NotificationProvider>
+      </body>
     </html>
   )
 }

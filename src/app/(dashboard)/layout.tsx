@@ -1,6 +1,6 @@
 import { AuthProvider } from '@/context/AuthContext'
-import DashboardHeader from '@/components/dashboard/Header'
 import DashboardSidebar from '@/components/dashboard/Sidebar'
+import DashboardHeader from '@/components/dashboard/Header'
 
 export default function DashboardLayout({
   children,
@@ -11,11 +11,9 @@ export default function DashboardLayout({
     <AuthProvider>
       <div className="min-h-screen flex">
         <DashboardSidebar />
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <DashboardHeader />
-          <main className="p-4 md:p-6 bg-gray-50 min-h-screen">
-            {children}
-          </main>
+          <main className="flex-1 p-6 bg-gray-100">{children}</main>
         </div>
       </div>
     </AuthProvider>

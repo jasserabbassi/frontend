@@ -1,32 +1,55 @@
 'use client'
 
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { api } from '@/lib/api'
+
+type User = {
+  id: string
+  email: string
+  role: 'admin' | 'manager' | 'driver'
+}
 
 type AuthContextType = {
-  user: any
-  login: (token: string) => void
+  user: User | null
+  login: (token: string, userData: User) => void  // Requires both parameters
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>(null!)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (token) setUser({ token })
-  }, [])
+    const validateToken = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        
+        // Verify token with backend
+        const res = await api.get('/auth/validate');
+        setUser(res.data.user);
+      } catch (error) {
+        logout();
+      }
+    };
+  
+    validateToken();
+  }, []);
 
-  const login = (token: string) => {
+  const login = (token: string, userData: User) => {
     localStorage.setItem('token', token)
-    setUser({ token })
+    setUser(userData)
   }
 
   const logout = () => {
     localStorage.removeItem('token')
     setUser(null)
-    window.location.href = '/login'
+    window.location.href = '/auth/login'
+  }
+
+  const hasRole = (roles: string[]) => {
+    return user ? roles.includes(user.role) : false
   }
 
   return (

@@ -1,44 +1,42 @@
+// app/dashboard/vehicles/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import DataTable from '@/components/vehicles/DataTable'
+import Modal from '@/components/ui/Modal'
+import VehicleForm from '@/components/vehicles/VehicleForm'
 import { api } from '@/lib/api'
 
-interface Vehicle {
-  id: string
-  registration: string
-  brand: string
-  model: string
-  year: number
-  type: string
-}
-
 export default function VehiclesPage() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const response = await api.get('/vehicles')
-        setVehicles(response.data)
-      } catch (error) {
-        console.error('Error fetching vehicles:', error)
-      } finally {
-        setLoading(false)
-      }
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  const handleAddVehicle = async (data: any) => {
+    try {
+      await api.post('/vehicles', data)
+      // Refresh data or update state
+      setIsModalOpen(false)
+    } catch (error) {
+      console.error('Error adding vehicle:', error)
     }
-    fetchVehicles()
-  }, [])
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-bold mb-4">Vehicle List</h2>
-      {loading ? (
-        <p>Loading vehicles...</p>
-      ) : (
-        <DataTable vehicles={vehicles} />
-      )}
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Vehicle Management</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        >
+          Add New Vehicle
+        </button>
+      </div>
+
+      <DataTable vehicles={[]} />
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <VehicleForm onSubmit={handleAddVehicle} />
+      </Modal>
     </div>
   )
 }
